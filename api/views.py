@@ -45,9 +45,9 @@ def signup_view(request):
             serializer.errors
     return Response(data)
 
-@api_view(['GET'])
+@api_view(['POST'])
 def signin_view(request):
-        if request.method=="GET":
+        if request.method=="POST":
                 #serializer= UserSerializer(data=request.data)
                 data=request.data   # get the data by using this method 
 
@@ -87,6 +87,7 @@ def forgot_view(request):
         print ('data   =>> ', data)
         # data['responce']='sucessfully forgot the password'
         user = UserModel.objects.filter(email = data['email']).first() #get the email from database by createing the object of model 
+        #encry(email)
         smtp_view(user.email)
     return  HttpResponse(data)
 
@@ -94,26 +95,18 @@ def forgot(request):
     if request.method == 'POST':
         # forgot2='127.0.0.1:8000/forgot1'
         message = request.GET.get('token') # get the email from the parameter 
-        print("mmmmm",message)
-        print("mmmmm",message)
-        print("mmmmm",message)
+
         new_password=request.POST.get('new_password')
         confirm_password=request.POST.get('confirm_password')
-        user=UserModel
-        user.make_password(self.validated_data['password'],None, 'pbkdf2_sha256')
 
-        user.save
-        #user = UserModel.objects.get(email=email)
-        
-        # confirm_password=encry(confirm_password)
-        encry(confirm_password)
-        # user = UserModel.objects.filter(email = data['email']).first()
-        # user=users[0]
-        # user.set_password('confirm_password')
-        # user.save()
-        # exit()
-    
-    
+        #encry(confirm_password)
+
+        user = UserModel.objects.filter(email =  message).first()
+        user.password=make_password(('confirm_password'),None, 'pbkdf2_sha256')
+       
+        user.save()
+       
+        #user = UserModel.objects.get(email=email) 
     return render(request,'forgot.html')
 
 
@@ -122,10 +115,11 @@ def forgot(request):
 def smtp_view(email):
     subject = 'send the mail'
     email_from = settings.EMAIL_HOST_USER
-    html_content = render_to_string('mail.html', {"forgot2":  'http://localhost:8000/api/forgot1/?token=' + email})
-    print(type(email))
-    print(email)
-    print(email)
+    email1=encry(email)
+    print("smtp",email)
+    decry(email)
+    
+    html_content = render_to_string('mail.html', {"forgot2":  'http://localhost:8000/api/forgot1/?token=' + email1})
     #recipient_list = ['kuldeepwadhwa1995@gmail.com']
     #otp=random.randrange(1111,9999)
     message = render_to_string('mail.html')
@@ -147,20 +141,12 @@ def smtp_view(email):
 #     return HttpResponse("done")
 
 
-def encry(confirm_password):  #get the string type 
+def encry(email):  #get the string type 
     # key = Fernet.generate_key() #this is your "password"
     cipher_suite = Fernet(b'ui38faJP-KwsX2MaYkuX0uaTrP4vkLLbS-RV1GoSVRI=')
-    print(confirm_password)
-    print(type(confirm_password)) #string
-    encoded_text = cipher_suite.encrypt(str.encode(str(confirm_password)))  # type cast into byte because encrypt function apply only on byte then convert into into bytes 
-    print (type(encoded_text))# check the type of encoded text 
-    print (encoded_text)
-    print (encoded_text)
-    
-    print (type(encoded_text)) #byte code 
+    encoded_text = cipher_suite.encrypt(str.encode(str(email)))  # type cast into byte because encrypt function apply only on byte then convert into into bytes 
     de=encoded_text.decode()   # byte code 
-    print(de)
-    print("de")
+    print(de, '  encrypted \n\n\n')
     return de
 
 
@@ -178,3 +164,8 @@ def encry(confirm_password):  #get the string type
 #     print(de)
 #     print("de")
 #     return de
+def decry(email):
+    cipher_suite = Fernet(b'ui38faJP-KwsX2MaYkuX0uaTrP4vkLLbS-RV1GoSVRI=')
+    decoded_text = cipher_suite.decrypt(str.encode(email))  #use the encode() from  str_library to convert the str into byte code because the encrypt function apply only on byte code  
+    print(decoded_text)  # string email
+    return  decoded_text
