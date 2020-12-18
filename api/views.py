@@ -17,6 +17,14 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 import random
 from django.template.loader import render_to_string
+import crypt
+import  crypto
+from cryptography.fernet import Fernet
+import socket
+import sys
+from django.contrib.auth.hashers import make_password
+
+
 
 
 # Create your views here.
@@ -45,7 +53,7 @@ def signin_view(request):
 
                 # if serializer.is_valid():
                 # signin=serializer.save()
-                data['responce']='sucessfully sign in'
+                #data['responce']='sucessfully sign in'
 
                 #data['email']=signin.email
                 user = UserModel.objects.filter(email = data['email']).first()  # get the data from the data base 
@@ -60,11 +68,22 @@ def signin_view(request):
 
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 def forgot_view(request):
-    if request.method=="GET":
+    if request.method == 'POST':
         #serializer= UserSerializer(data=request.data)
         data=request.data   # get the data by using this method 
+        # data['email']=request.data.get('email')
+        # new_password=request.POST.get('new_password')
+        # confirm_password=request.data.get('confirm_password')
+        
+        # print (new_password)
+        # print (new_password)
+        # print (new_password)
+        # print (confirm_password)
+        # print (confirm_password)
+        # print (confirm_password)
+        print (data)
         print ('data   =>> ', data)
         # data['responce']='sucessfully forgot the password'
         user = UserModel.objects.filter(email = data['email']).first() #get the email from database by createing the object of model 
@@ -72,8 +91,30 @@ def forgot_view(request):
     return  HttpResponse(data)
 
 def forgot(request):
-    forgot2='127.0.0.1:8000/forgot1'
-    return render(request,'forgot.html',{"forgot2" : forgot2})
+    if request.method == 'POST':
+        # forgot2='127.0.0.1:8000/forgot1'
+        message = request.GET.get('token') # get the email from the parameter 
+        print("mmmmm",message)
+        print("mmmmm",message)
+        print("mmmmm",message)
+        new_password=request.POST.get('new_password')
+        confirm_password=request.POST.get('confirm_password')
+        user=UserModel
+        user.make_password(self.validated_data['password'],None, 'pbkdf2_sha256')
+
+        user.save
+        #user = UserModel.objects.get(email=email)
+        
+        # confirm_password=encry(confirm_password)
+        encry(confirm_password)
+        # user = UserModel.objects.filter(email = data['email']).first()
+        # user=users[0]
+        # user.set_password('confirm_password')
+        # user.save()
+        # exit()
+    
+    
+    return render(request,'forgot.html')
 
 
 
@@ -81,7 +122,10 @@ def forgot(request):
 def smtp_view(email):
     subject = 'send the mail'
     email_from = settings.EMAIL_HOST_USER
-    html_content = render_to_string('mail.html', {"forgot2": "http://127.0.0.1:8000/forgot"})
+    html_content = render_to_string('mail.html', {"forgot2":  'http://localhost:8000/api/forgot1/?token=' + email})
+    print(type(email))
+    print(email)
+    print(email)
     #recipient_list = ['kuldeepwadhwa1995@gmail.com']
     #otp=random.randrange(1111,9999)
     message = render_to_string('mail.html')
@@ -95,3 +139,42 @@ def smtp_view(email):
 # def forgot_api(request):
 #     return render(request,'forgot.html')
 
+# def enc(confirm_password):
+#     user = UserModel
+#     print(user)
+#     user.password= f.encrypt(confirm_password)
+#     print(password)
+#     return HttpResponse("done")
+
+
+def encry(confirm_password):  #get the string type 
+    # key = Fernet.generate_key() #this is your "password"
+    cipher_suite = Fernet(b'ui38faJP-KwsX2MaYkuX0uaTrP4vkLLbS-RV1GoSVRI=')
+    print(confirm_password)
+    print(type(confirm_password)) #string
+    encoded_text = cipher_suite.encrypt(str.encode(str(confirm_password)))  # type cast into byte because encrypt function apply only on byte then convert into into bytes 
+    print (type(encoded_text))# check the type of encoded text 
+    print (encoded_text)
+    print (encoded_text)
+    
+    print (type(encoded_text)) #byte code 
+    de=encoded_text.decode()   # byte code 
+    print(de)
+    print("de")
+    return de
+
+
+
+# def encry(email):  #get the string type 
+#     # key = Fernet.generate_key() #this is your "password"
+#     cipher_suite = Fernet(b'ui38faJP-KwsX2MaYkuX0uaTrP4vkLLbS-RV1GoSVRI=')
+#     print(email)
+#     print(type(email)) #string
+#     encoded_text = cipher_suite.encrypt(str.encode(str(email)))  # type cast into byte because encrypt function apply only on byte then convert into into bytes 
+#     print (type(encoded_text))# check the type of encoded text 
+#     print (encoded_text)
+#     print (type(encoded_text)) #byte code 
+#     de=encoded_text.decode()   # byte code 
+#     print(de)
+#     print("de")
+#     return de

@@ -3,11 +3,11 @@
 <body>
 
 <h1>Forgot the password</h1>
-<form action = ""   method = "get"> 
+<form action = ""   method = "post">  {% csrf_token %}
     <label for="New Password">New password: </label> 
-    <input id="new password" type="text" name="new password"> 
+    <input id="new password" type="text" name="new_password"> 
     <label for="confirm Password">confirm password: </label> 
-    <input id="confirm password" type="text" name="confirm password"> 
+    <input id="confirm password" type="text" name="confirm_password"> 
     <input type="submit" value="forgot"> 
 </form> 
 </body>
