@@ -23,6 +23,7 @@ from cryptography.fernet import Fernet
 import socket
 import sys
 from django.contrib.auth.hashers import make_password
+from rest_framework.exceptions import APIException
 
 
 
@@ -61,8 +62,8 @@ def signin_view(request):
                 is_verified = django_pbkdf2_sha256.verify(data['password'],django_hash) # compare the both password 
                 if is_verified:
                     print('Correct!!')
-                # 5 else:
-                #         data=serializer.errors
+                else:
+                    raise APIException("Incorrect Password!")
         return Response(data)
 
 
@@ -95,15 +96,19 @@ def forgot(request):
     if request.method == 'POST':
         # forgot2='127.0.0.1:8000/forgot1'
         message = request.GET.get('token') # get the email from the parameter 
-
+        de=decry(message)
         new_password=request.POST.get('new_password')
         confirm_password=request.POST.get('confirm_password')
 
         #encry(confirm_password)
 
-        user = UserModel.objects.filter(email =  message).first()
-        user.password=make_password(('confirm_password'),None, 'pbkdf2_sha256')
-       
+        user = UserModel.objects.filter(email = de).first()
+        print(user.email)
+        #decry(user.email)
+        print(confirm_password)
+        user.password=make_password((confirm_password),None, 'pbkdf2_sha256')
+        print(user.password)
+        
         user.save()
        
         #user = UserModel.objects.get(email=email) 
@@ -117,7 +122,7 @@ def smtp_view(email):
     email_from = settings.EMAIL_HOST_USER
     email1=encry(email)
     print("smtp",email)
-    decry(email)
+    #decry(email)
     
     html_content = render_to_string('mail.html', {"forgot2":  'http://localhost:8000/api/forgot1/?token=' + email1})
     #recipient_list = ['kuldeepwadhwa1995@gmail.com']
@@ -166,6 +171,8 @@ def encry(email):  #get the string type
 #     return de
 def decry(email):
     cipher_suite = Fernet(b'ui38faJP-KwsX2MaYkuX0uaTrP4vkLLbS-RV1GoSVRI=')
-    decoded_text = cipher_suite.decrypt(str.encode(email))  #use the encode() from  str_library to convert the str into byte code because the encrypt function apply only on byte code  
+    decoded_text = cipher_suite.decrypt(str.encode(str(email))) #use the encode() from  str_library to convert the str into byte code because the encrypt function apply only on byte code  
     print(decoded_text)  # string email
     return  decoded_text
+
+
