@@ -176,3 +176,23 @@ def decry(email):
     return  decoded_text
 
 
+@api_view(['PUT'])
+def Change_view(request):
+    if request.method == 'PUT':
+         data=request.data
+        #  old_password =make_password((data['password']),None, 'pbkdf2_sha256')
+        #  print(old_password)
+        #  old_password =make_password((data['password']),None, 'pbkdf2_sha256')
+         #print(old_password)
+         #print(email)
+         user = UserModel.objects.filter(email = data['email']).first()  # get the data from the data base 
+         django_hash = user.password   # get the password from database 
+         is_verified = django_pbkdf2_sha256.verify(data['old_password'],django_hash) # compare the both password 
+         if is_verified:
+            print('Correct!!')
+            user.password=make_password((data['new_password']),None, 'pbkdf2_sha256')
+            user.save()
+         else:
+            raise APIException("Incorrect Password!")
+         return Response(data)
+    

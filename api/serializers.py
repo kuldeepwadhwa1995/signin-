@@ -21,3 +21,34 @@ class UserSerializer(serializers.ModelSerializer):
             model1.save()
             print()
             return  model1
+
+
+
+# class ChangePasswordSerializer(serializers.SeriModelSerializer):
+#     class Meta:
+#         model = UserModel
+#         fields = ('password','email')
+
+#         """
+#         Serializer for password change endpoint.
+#         """
+#         old_password = serializers.CharField(required=True)
+#         new_password = serializers.CharField(required=True)
+
+# class ChangePasswordSerializer(ModelSerializer):
+#     confirm_password = CharField(write_only=True)
+#     new_password = CharField(write_only=True)
+#     old_password = CharField(write_only=True)
+
+#     class Meta:
+#         model = UserModel
+# #         fields = ['id', 'password', 'old_password', 'new_password','confirm_password']
+# class PasswordSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = UserModel
+#         fields = ('password')
+
+#     def update(self, instance, validated_data):
+#         instance.password = validated_data.get('password', instance.password)
+#         instance.save()
+#         return instance
